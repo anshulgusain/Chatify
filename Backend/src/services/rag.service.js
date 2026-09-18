@@ -1,0 +1,105 @@
+const { embedText, generateReply } = require("./llm.service");
+const { searchSimilarChunks } = require("./vectorStore.service");
+const prisma = require("../config/prisma");
+
+const SYSTEM_INSTRUCTION = `You are a friendly customer support assistant for Anti Bikli Ventures and its brands (Krisha Organic, Safe Safar, Freshmart Now, Dead End Bites, Helmo Guard, Harsheel Water).
+
+Formatting rules for WhatsApp/Instagram (plain text chat, not a document):
+
+- Keep answers very short and conversational — 2-5 sentences, or a simple flat list using "-" if listing items.
+- Use relevant emojis naturally to make replies warm and engaging (e.g. 🌿 for organic products, 📦 for orders, 📞 for support, ✅ for confirmations) — but don't overdo it, 1-3 emojis per reply is enough.
+- Use *single asterisks* for bold (WhatsApp's bold syntax), never double asterisks or markdown headers.
+- If listing multiple items (like products or brands), use a simple flat "-" list, one line each, no sub-bullets.
+
+Answer using the provided context. If the context doesn't contain the answer, or the user is asking for more detailed help than you can give (e.g. order-specific issues, complaints, or anything beyond general info), say you don't have that information and direct them to:
+📞 +91 9762036368
+📧 info.antibikliventures@gmail.com or info@antibikliventures.com
+Do not make things up.`;
+
+async function getConversationHistory(conversationId, limit = 10) {
+  const messages = await prisma.message.findMany({
+    where: { conversationId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+  return messages.reverse();
+}
+
+async function saveMessage(conversationId, role, content) {
+  await prisma.message.create({
+    data: { conversationId, role, content },
+  });
+}
+
+async function getActiveTicket({ platform, phone, igUserId }) {
+  const where = platform === "whatsapp"
+    ? { platform, phone, status: "open" }
+    : { platform, igUserId, status: "open" };
+
+  let conversation = await prisma.conversation.findFirst({
+    where,
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!conversation) {
+    conversation = await prisma.conversation.create({
+      data: { platform, phone, igUserId, status: "open" },
+    });
+  }
+
+  return conversation;
+}
+
+async function handleUserQuery({ platform, phone, igUserId, userMessage }) {
+  const t0 = Date.now();
+  const conversation = await getActiveTicket({ platform, phone, igUserId });
+  console.log(`[timing] getActiveTicket: ${Date.now() - t0}ms`);
+
+  const t1 = Date.now();
+  const [history, queryEmbedding] = await Promise.all([
+    getConversationHistory(conversation.id, 6),
+    embedText(userMessage),
+  ]);
+  console.log(`[timing] history+embed: ${Date.now() - t1}ms`);
+
+  const t2 = Date.now();
+  const chunks = await searchSimilarChunks(queryEmbedding, 5);
+  console.log(`[timing] vectorSearch: ${Date.now() - t2}ms`);
+  const context = chunks.map((c) => c.content).join("\n---\n");
+
+  let reply;
+  const t3 = Date.now();
+  try {
+    reply = await generateReply({ systemInstruction: SYSTEM_INSTRUCTION, context, history, userMessage });
+    console.log(`[timing] generateReply: ${Date.now() - t3}ms`);
+  } catch (err) {
+    console.error("OpenAI generateReply failed after retries:", err.message);
+    reply = "Abhi thodi technical dikkat aa rahi hai 🙏 Aap seedha humse contact kar sakte hain:\n📞 +91 9762036368\n📧 info.antibikliventures@gmail.com";
+  }
+
+  saveMessage(conversation.id, "user", userMessage).catch((err) =>
+    console.error("Failed to save user message:", err)
+  );
+  saveMessage(conversation.id, "assistant", reply).catch((err) =>
+    console.error("Failed to save assistant message:", err)
+  );
+
+  return reply;
+}
+
+async function closeTicket(conversationId) {
+  return prisma.conversation.update({
+    where: { id: conversationId },
+    data: { status: "closed" },
+  });
+}
+
+async function getTicketHistory(phone) {
+  return prisma.conversation.findMany({
+    where: { phone },
+    include: { messages: { orderBy: { createdAt: "asc" } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+module.exports = { handleUserQuery, closeTicket, getTicketHistory };
