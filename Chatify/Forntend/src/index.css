@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ─── WhatsApp Official Color Palette ────────────────────────────── */
+@theme {
+  --color-emerald-50:  #e8fdf0;
+  --color-emerald-100: #d9fdd3;   /* WA sent-bubble light green */
+  --color-emerald-200: #aef1c2;
+  --color-emerald-300: #6de89b;
+  --color-emerald-400: #34d87a;
+  --color-emerald-500: #25D366;   /* WhatsApp Primary Green     */
+  --color-emerald-600: #128C7E;   /* WhatsApp Dark Green        */
+  --color-emerald-700: #0d7a6c;
+  --color-emerald-800: #075E54;   /* WhatsApp Teal (header)     */
+  --color-emerald-900: #054a42;
+  --color-emerald-950: #02221f;
+}
+
+/* ─── Root Design Tokens ─────────────────────────────────────────── */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* WhatsApp Web Light Theme Exact Colors */
+  --wa-green:        #25D366;
+  --wa-dark-green:   #128C7E;
+  --wa-teal:         #075E54;
+
+  /* Light mode panels (WhatsApp Web exact) */
+  --wa-light-bg:     #f0f2f5;   /* WA Web left panel background */
+  --wa-light-chat:   #efeae2;   /* WA Web chat area background  */
+  --wa-light-card:   #ffffff;   /* Message/card background      */
+  --wa-light-border: #e9edef;   /* Dividers                     */
+  --wa-light-text:   #111b21;   /* Primary text - very dark     */
+  --wa-light-text2:  #54656f;   /* Secondary text - gray        */
+  --wa-light-icon:   #54656f;   /* Icons                        */
+  --wa-light-hover:  #f5f6f6;   /* Hover background             */
+  --wa-light-sent:   #d9fdd3;   /* Sent message bubble          */
+
+  /* Dark mode (WA Dark) */
+  --wa-dark-bg:      #0b141a;
+  --wa-dark-panel:   #111b21;
+  --wa-dark-header:  #202c33;
+  --wa-dark-input:   #2a3942;
+  --wa-dark-text:    #e9edef;
+  --wa-dark-text2:   #8696a0;
+  --wa-dark-border:  #374147;
+
+  --nav-height: 3.5rem;
+  --sidebar-width: 17rem;
+}
+
+/* ─── Base Styles ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px; /* base font size - bigger than default */
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  /* WhatsApp Web Light — chat wallpaper background */
+  background-color: #efeae2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='%23c8bdb5' stroke-width='0.5' opacity='0.45'%3E%3Cellipse cx='20' cy='20' rx='7' ry='4' transform='rotate(-30 20 20)'/%3E%3Cellipse cx='60' cy='60' rx='7' ry='4' transform='rotate(-30 60 60)'/%3E%3Cellipse cx='60' cy='20' rx='7' ry='4' transform='rotate(30 60 20)'/%3E%3Cellipse cx='20' cy='60' rx='7' ry='4' transform='rotate(30 20 60)'/%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Cline x1='14' y1='17' x2='6' y2='22'/%3E%3Cline x1='26' y1='17' x2='34' y2='22'/%3E%3Cline x1='54' y1='57' x2='46' y2='62'/%3E%3Cline x1='66' y1='57' x2='74' y2='62'/%3E%3C/g%3E%3C/svg%3E");
+  color: #111b21;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark body {
+  background-color: #0b141a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='0.5' opacity='0.03'%3E%3Cellipse cx='20' cy='20' rx='7' ry='4' transform='rotate(-30 20 20)'/%3E%3Cellipse cx='60' cy='60' rx='7' ry='4' transform='rotate(-30 60 60)'/%3E%3Cellipse cx='60' cy='20' rx='7' ry='4' transform='rotate(30 60 20)'/%3E%3Cellipse cx='20' cy='60' rx='7' ry='4' transform='rotate(30 20 60)'/%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Cline x1='14' y1='17' x2='6' y2='22'/%3E%3Cline x1='26' y1='17' x2='34' y2='22'/%3E%3Cline x1='54' y1='57' x2='46' y2='62'/%3E%3Cline x1='66' y1='57' x2='74' y2='62'/%3E%3C/g%3E%3C/svg%3E");
+  color: #e9edef;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c4b5a5; border-radius: 9999px; }
+html.dark ::-webkit-scrollbar-thumb { background: #374147; }
+::-webkit-scrollbar-thumb:hover { background: #a89888; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #54656f; }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #374147; border-radius: 4px; }
+
+/* ─── Selection ───────────────────────────────────────────────────── */
+::selection { background: #25D366; color: white; }
+
+/* ─── Mono / Code ─────────────────────────────────────────────────── */
+code, kbd, pre, samp { font-family: var(--font-mono); }
+
+:not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: #e8fdf0;
+  border: 1px solid #b7ecc9;
+  border-radius: 5px;
+  padding: 0.1em 0.4em;
+  color: #075E54;
+  font-weight: 600;
+}
+html.dark :not(pre) > code {
+  background: #054a42;
+  border-color: #0d7a6c;
+  color: #25D366;
+}
+
+/* ─── Focus ───────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #25D366;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ─── Transitions ─────────────────────────────────────────────────── */
+.transition-theme {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ─── Animations ──────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.35); }
+  50%       { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+}
+
+.animate-fade-in-up     { animation: fadeInUp 0.4s ease forwards; }
+.animate-fade-in        { animation: fadeIn 0.3s ease forwards; }
+.animate-slide-in-right { animation: slideInRight 0.3s ease forwards; }
+.animate-pulse-glow     { animation: pulseGlow 2s ease-in-out infinite; }
+
+/* ─── Gradient Text ───────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #128C7E, #25D366);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Glass Card ──────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Light Prose ─────────────────────────────────────────────────── */
+.prose p  { margin-bottom: 1em; color: #111b21; }
+.prose h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5em; margin-bottom: 0.5em; color: #111b21; }
+.prose ul { list-style: disc; padding-left: 1.5em; margin-bottom: 1em; }
+.prose li { margin-bottom: 0.25em; color: #3b4a54; }
+.prose a  { color: #128C7E; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ─── WhatsApp Chat Bubbles ───────────────────────────────────────── */
+.wa-bubble-user { background: #d9fdd3; color: #111b21; }          /* Light sent */
+.wa-bubble-bot  { background: #ffffff; color: #111b21; }           /* Light received */
+html.dark .wa-bubble-user { background: #005c4b; color: #e9edef; }
+html.dark .wa-bubble-bot  { background: #202c33; color: #e9edef; }
+
+/* ─── Sidebar Active Link ─────────────────────────────────────────── */
+.sidebar-active {
+  background: linear-gradient(90deg, rgba(37,211,102,0.15) 0%, transparent 100%);
+  border-left: 2px solid #25D366;
+  color: #128C7E !important;
+  font-weight: 700;
+}
+
+/* ─── Step Complete Badge ─────────────────────────────────────────── */
+.step-badge-complete {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+/* ─── Search Backdrop ─────────────────────────────────────────────── */
+.search-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Anchor scroll margin ────────────────────────────────────────── */
+[id] { scroll-margin-top: 5rem; }
+
+/* ─── Mobile Drawer ───────────────────────────────────────────────── */
+.mobile-drawer-enter        { transform: translateX(-100%); opacity: 0; }
+.mobile-drawer-enter-active { transform: translateX(0); opacity: 1; transition: transform 0.28s ease, opacity 0.28s ease; }
+.mobile-drawer-exit         { transform: translateX(0); opacity: 1; }
+.mobile-drawer-exit-active  { transform: translateX(-100%); opacity: 0; transition: transform 0.25s ease, opacity 0.25s ease; }
+
+/* ─── Responsive Table ────────────────────────────────────────────── */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ─── WA Web Light Panel Overrides ───────────────────────────────── */
+/* Force Tailwind slate-* to match WA Web's text colors in light mode */
+:not(.dark) .text-slate-900  { color: #111b21 !important; }
+:not(.dark) .text-slate-800  { color: #1f2c33 !important; }
+:not(.dark) .text-slate-700  { color: #3b4a54 !important; }
+:not(.dark) .text-slate-600  { color: #54656f !important; }
+:not(.dark) .text-slate-500  { color: #667781 !important; }
+:not(.dark) .text-slate-400  { color: #8696a0 !important; }
+
+/* WA Web sidebar + panel backgrounds in light mode */
+:not(.dark) .bg-slate-50  { background-color: #f0f2f5 !important; }
+:not(.dark) .bg-slate-100 { background-color: #f0f2f5 !important; }
+:not(.dark) .bg-slate-800 { background-color: #f0f2f5 !important; }
+:not(.dark) .bg-white     { background-color: #ffffff; }
+
+/* WA Web border colors in light mode */
+:not(.dark) .border-slate-200 { border-color: #e9edef !important; }
+:not(.dark) .border-slate-300 { border-color: #d1d7db !important; }
+:not(.dark) .border-slate-700 { border-color: #e9edef !important; }
+
+/* ─── Print ───────────────────────────────────────────────────────── */
+@media print {
+  nav, aside, .no-print { display: none !important; }
+  main { margin: 0 !important; padding: 0 !important; }
+}
